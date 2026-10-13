@@ -1,0 +1,26 @@
+create database if not exists tsestdb;
+use tsestdb;
+
+create schema if not exists test_schema;
+use schema test_schema;
+
+create table if not exists test_table(id int);
+insert into test_table values(1000);
+
+select * from test_table;
+
+create or replace table test_table(id int, name varchar(20), age int);
+
+desc table test_table;
+
+select * from test_table;
+
+
+create table new_table(
+id int, age int, code varchar(10));
+
+insert into new_table(id, age, code)
+select id , age, left(name,3)
+from test_table;
+
+select * from new_table;
