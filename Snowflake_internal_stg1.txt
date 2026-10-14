@@ -1,0 +1,30 @@
+select current_database();
+
+use schema test_schema();
+
+create stage internal_stg;
+
+desc stage internal_stg;
+
+list @internal_stg;
+
+
+create table student_data(
+id int, name varchar(50), age int);
+
+select * from student_data;
+
+
+copy into student_data
+from @internal_stg
+file_format=(
+type = csv
+skip_header = 1
+field_optionally_enclosed_by = '"'
+);
+
+
+select * from student_data;
+
+
+
