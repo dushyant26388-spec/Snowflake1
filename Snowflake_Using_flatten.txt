@@ -1,0 +1,28 @@
+list @internal_stg;
+
+
+
+select $1 from @internal_stg/VSDATA2.json
+(FILE_FORMAT => 'MY_JSON_FORMAT');
+
+
+
+copy into json_table
+from @internal_stg/VSDATA2.json
+file_format = (type = json);
+
+
+select * from json_table;
+
+
+
+SELECT f.value
+FROM @internal_stg/VSDATA2.json
+(FILE_FORMAT => 'MY_JSON_FORMAT') t,
+LATERAL FLATTEN(input => t.$1) f
+WHERE f.index = 0;
+ 
+
+
+
+
