@@ -1,0 +1,35 @@
+
+
+create table json_table(
+data variant
+);
+
+
+
+
+
+copy into json_table
+from @internal_stg/VSDATA.json
+file_format = (type = json);
+
+
+
+
+
+select * from json_table;
+
+
+
+select data:age from json_table;
+
+
+
+select data:name from json_table;
+
+
+
+
+
+
+
+
