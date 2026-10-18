@@ -1,0 +1,19 @@
+select $1 
+from @internal_stg/VSDATA3.json
+(FILE_FORMAT => 'MY_JSON_FORMAT');
+
+
+
+
+-- strip outer array use 
+
+ALTER FILE FORMAT my_json_format
+SET STRIP_OUTER_ARRAY = TRUE;
+
+
+COPY INTO json_table
+FROM @internal_stg/VSDATA2.json
+FILE_FORMAT = (FORMAT_NAME = 'MY_JSON_FORMAT')
+FORCE = TRUE;
+
+select * from json_table;
