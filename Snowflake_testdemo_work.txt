@@ -1,0 +1,76 @@
+USE DATABASE TSESTDB;
+
+CREATE OR REPLACE TABLE testdemo (
+    id INT,
+    name VARCHAR(20),
+    status VARCHAR(20)
+);
+
+CREATE STREAM testdemo_s ON TABLE testdemo;
+select * from testdemo;
+
+select * from testdemo_s;
+
+INSERT INTO testdemo
+VALUES
+(1, 'abhishek', 'placed'),
+(2, 'naina', 'cancel');
+
+select * from testdemo;
+
+INSERT INTO testdemo
+VALUES (3, 'ram', 'delivered');
+
+SELECT * FROM testdemo_s;
+
+
+UPDATE testdemo
+SET status = 'Cancel' WHERE id = 1;
+
+SELECT * FROM testdemo_s;
+
+
+CREATE OR REPLACE TABLE testfinal (
+    id INT,
+    name VARCHAR(20),
+    status VARCHAR(20)
+);
+
+INSERT INTO testfinal
+SELECT id, name, status
+FROM testdemo_s;
+
+SELECT * FROM testfinal;
+
+UPDATE testfinal
+SET status = (
+    SELECT status
+    FROM testdemo_s
+    WHERE METADATA$ACTION = 'INSERT'
+      AND METADATA$ISUPDATE = 'TRUE'
+      AND id = 1
+)
+WHERE id = 1;
+
+
+
+
+MERGE INTO testfinal t
+USING testdemo_s s
+ON t.id = s.id
+
+WHEN MATCHED
+AND s.METADATA$ACTION = 'INSERT'
+THEN UPDATE SET
+    t.name = s.name,
+    t.status = s.status
+
+WHEN NOT MATCHED
+AND s.METADATA$ACTION = 'INSERT'
+THEN INSERT (id, name, status)
+VALUES (s.id, s.name, s.status);
+
+
+SELECT * FROM testdemo_s;
+
+SELECT * FROM testfinal;
