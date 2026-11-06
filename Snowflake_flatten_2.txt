@@ -1,0 +1,26 @@
+USE DATABASE TSESTDB;
+USE SCHEMA TEST_SCHEMA;
+
+
+create or replace STAGE VPS_INTERNAL_STG;
+
+LIST @VPS_INTERNAL_STG;
+
+SELECT $1
+FROM @VPS_INTERNAL_STG/data1.json;
+
+create or replace table testjson(raw variant);
+select * from testjson;
+
+-- copy command use 
+copy into testjson 
+from @vps_internal_stg/data1.json
+file_format=(TYPE='json');
+
+select * from testjson;
+
+select *, raw:email, raw:subject, raw:subject[0] from testjson;
+
+-- lateral flatten use 
+select raw:name, raw:subject, s.value from testjson,
+lateral flatten(input => raw:subject) s;
