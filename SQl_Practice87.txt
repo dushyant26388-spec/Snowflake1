@@ -1,0 +1,53 @@
+Q61. Display the employee with the earliest hire year in each department using ROW_NUMBER().
+
+SELECT name, dept, hire_year
+FROM (
+    SELECT name, dept, hire_year,
+           ROW_NUMBER() OVER(
+               PARTITION BY dept ORDER BY hire_year, name
+           ) AS rn
+    FROM employees
+) AS e
+WHERE rn = 1;
+
+Q62. Display the employee with the second-lowest salary in each department.
+
+SELECT name, dept, salary
+FROM (
+    SELECT name, dept, salary,
+           DENSE_RANK() OVER(
+               PARTITION BY dept ORDER BY salary
+           ) AS salary_rank
+    FROM employees
+) AS e
+WHERE salary_rank = 2;
+
+Q63. Display the employee with the third-highest salary in the company.
+
+SELECT name, salary
+FROM (
+    SELECT name, salary,
+           DENSE_RANK() OVER(ORDER BY salary DESC) AS salary_rank
+    FROM employees
+) AS e
+WHERE salary_rank = 3;
+
+Q64. Display employees who share the same hire year within their department.
+
+SELECT name, dept, hire_year
+FROM (
+    SELECT name, dept, hire_year,
+           COUNT(*) OVER(
+               PARTITION BY dept, hire_year
+           ) AS hire_count
+    FROM employees
+) AS e
+WHERE hire_count > 1;
+
+Q65. Display the difference between each employee's salary and the previous salary in ascending salary order within their department.
+
+SELECT name, dept, salary,
+       salary - LAG(salary) OVER(
+           PARTITION BY dept ORDER BY salary, name
+       ) AS salary_gap
+FROM employees;
