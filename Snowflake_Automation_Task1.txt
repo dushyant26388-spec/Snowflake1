@@ -1,0 +1,34 @@
+create or replace table student_final
+(
+    id int,
+    name varchar(50),
+    created_date date
+);
+
+
+
+create or replace task student_task
+warehouse = 'compute_wh'
+schedule = '1 minute'
+when system$stream_has_data('student_stream')
+as
+insert into student_final
+select
+    id,
+    name,
+    current_date()
+from student_stream
+where metadata$action = 'INSERT';
+
+
+alter task student_task resume;
+
+
+insert into student values
+(7, 'aman');
+
+
+select * from student;
+
+
+select * from student_final;
