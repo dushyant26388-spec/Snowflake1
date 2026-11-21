@@ -1,0 +1,97 @@
+use database tsestdb;
+
+create table test (ind int);
+
+desc table test;
+
+SHOW TABLES LIKE 'test';
+
+
+
+create or replace table test1 (id int) DATA_RETENTION_TIME_IN_DAYS = 5 ;
+
+SHOW TABLES LIKE 'test1';
+
+
+
+CREATE TRANSIENT TABLE TEST2 (ID INT);
+
+SHOW TABLES LIKE 'test2';
+
+
+
+CREATE TRANSIENT TABLE TEST3 (ID INT) DATA_RETENTION_TIME_IN_DAYS = 12 ;
+
+
+
+
+CREATE TEMPORARY TABLE TEST4 (ID INT) ;
+
+SHOW TABLES LIKE 'test4';
+
+CREATE TEMPORARY TABLE TEST5 (ID INT) DATA_RETENTION_TIME_IN_DAYS = 12 ;
+
+
+SHOW TABLES LIKE 'test5';
+
+
+-----DATABASE
+
+CREATE TRANSIENT DATABASE TREAN_DB;
+
+USE TREAN_DB;
+
+CREATE TABLE TEST1 (ID INT);
+
+SHOW TABLES LIKE 'TEST1';
+
+
+CREATE OR REPLACE FILE FORMAT my_csv_format
+  TYPE = 'CSV'
+  SKIP_HEADER = 1 ;
+
+
+  
+ CREATE OR REPLACE FILE FORMAT my_JSON_format
+  TYPE = 'JSON';
+
+
+  CREATE OR REPLACE FILE FORMAT my_PAR_format
+  TYPE = 'PARQUET';
+
+
+  show file formats;
+
+
+  -- zero copy 
+
+
+CREATE OR REPLACE TABLE emp (
+    ID INT,
+    NAME VARCHAR(50),
+    SALARY INT
+);
+
+
+INSERT INTO emp VALUES
+(1, 'Rahul', 30000),
+(2, 'Amit', 40000),
+(3, 'Rohit', 50000);
+
+
+
+CREATE TABLE emp_clone
+CLONE emp;
+
+select * from emp;
+
+select * from emp_clone;
+
+
+UPDATE emp_clone
+SET SALARY = 60000
+WHERE ID = 1;
+
+select * from emp;
+
+select * from emp_clone;
