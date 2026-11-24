@@ -1,0 +1,80 @@
+use role accountadmin;
+
+create or replace database demo_db;
+
+create or replace table demo_db.public.customers(
+id number,
+name string,
+email string
+);
+
+
+insert into demo_db.public.customers values
+(1,'Asha','asha@regex.com'),
+(2,'Ravi','ravi@regex.com'),
+(3,'Meera','meera@regex.com');
+
+
+create role if not exists Analyst;
+
+grant usage on database demo_db to role Analyst;
+grant select on table demo_db.public.customers to role analyst;
+
+select current_user();
+
+grant role analyst to user DUSHYANTSHARMA38;
+use role analyst;
+
+-- for check current role 
+select current_role();
+
+
+ 
+use role ACCOUNTADMIN;                ---- run this statement first for run below condition 
+
+create or replace masking policy demo_db.public.email_mask as (val string)
+returns string ->
+    case
+        when current_role() = 'ACCOUNTADMIN' then val
+        else '******'
+    end;
+
+
+alter table demo_db.public.customers
+modify column email
+set masking policy demo_db.public.email_mask;
+
+
+use role accountadmin;
+select * from demo_db.public.customers;
+
+
+use role analyst;
+select * from demo_db.public.customers;
+
+
+
+
+----   -- Dynamic Data Masking using CONCAT() to partially hide email addresses based on user roles
+use role accountadmin;
+
+ALTER TABLE demo_db.public.customers
+MODIFY COLUMN email
+UNSET MASKING POLICY;
+
+CREATE OR REPLACE MASKING POLICY demo_db.public.email_mask
+AS (val STRING)
+RETURNS STRING ->
+    CASE
+        WHEN CURRENT_ROLE() = 'ACCOUNTADMIN' THEN val
+        ELSE CONCAT(LEFT(val, 1), '***', SUBSTR(val, POSITION('@' IN val)))
+    END;
+
+
+alter table demo_db.public.customers
+modify column email
+set masking policy demo_db.public.email_mask;
+
+
+USE ROLE ANALYST;
+SELECT * FROM demo_db.public.customers;
