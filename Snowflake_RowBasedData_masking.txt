@@ -1,0 +1,80 @@
+use database demo_db;
+
+USE ROLE ACCOUNTADMIN;
+
+CREATE OR REPLACE TABLE demo_db.public.manager_data (
+    id INT,
+    manager STRING,
+    direction STRING,
+    amount NUMBER
+);
+
+INSERT INTO demo_db.public.manager_data VALUES
+(1, 'Rahul', 'NORTH', 5000),
+(2, 'Amit', 'SOUTH', 7000),
+(3, 'Rohit', 'EAST', 6000),
+(4, 'Priya', 'WEST', 8000),
+(5, 'Karan', 'NORTH', 9000),
+(6, 'Neha', 'SOUTH', 4000),
+(7, 'Arjun', 'EAST', 3000),
+(8, 'Simran', 'WEST', 10000);
+
+
+CREATE ROLE IF NOT EXISTS MANAGER_NORTH;
+CREATE ROLE IF NOT EXISTS MANAGER_SOUTH;
+CREATE ROLE IF NOT EXISTS MANAGER_EAST;
+CREATE ROLE IF NOT EXISTS MANAGER_WEST;
+
+
+grant role manager_north to user DUSHYANTSHARMA38;
+grant role manager_south to user DUSHYANTSHARMA38;
+grant role manager_east to user DUSHYANTSHARMA38;
+grant role manager_west to user DUSHYANTSHARMA38;
+
+
+
+grant usage on database  demo_db to role manager_south;
+grant select on table demo_db.public.manager_data  to role manager_south;
+
+
+grant usage on database demo_db to role manager_north;
+grant select on table demo_db.public.manager_data to role manager_north;
+
+
+grant usage on database demo_db to role manager_east;
+grant select on table demo_db.public.manager_data to role manager_east;
+
+grant usage on database demo_db to role manager_west;
+grant select on table demo_db.public.manager_data to role manager_west;
+
+
+CREATE OR REPLACE ROW ACCESS POLICY demo_db.public.direction_policy
+AS (direction STRING)
+RETURNS BOOLEAN ->
+    CASE
+        WHEN CURRENT_ROLE() = 'ACCOUNTADMIN' THEN TRUE
+        WHEN CURRENT_ROLE() = 'MANAGER_NORTH' AND direction = 'NORTH' THEN TRUE
+        WHEN CURRENT_ROLE() = 'MANAGER_SOUTH' AND direction = 'SOUTH' THEN TRUE
+        WHEN CURRENT_ROLE() = 'MANAGER_EAST' AND direction = 'EAST' THEN TRUE
+        WHEN CURRENT_ROLE() = 'MANAGER_WEST' AND direction = 'WEST' THEN TRUE
+        ELSE FALSE
+    END;
+
+
+alter table demo_db.public.manager_data
+add row access policy demo_db.public.direction_policy
+on (direction);
+
+
+
+use role manager_north;
+select * from demo_db.public.manager_data;
+
+
+USE ROLE ACCOUNTADMIN;
+select * from demo_db.public.manager_data;
+
+
+---- this code use only when we need change in policy after run once 
+ALTER TABLE demo_db.public.manager_data
+DROP ROW ACCESS POLICY demo_db.public.direction_policy;
